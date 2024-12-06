@@ -37,8 +37,9 @@ void xxx_responder(void *request, int status, struct xxx_header *headers, int he
 void handle_request(struct http_request_s *request) {
     struct xxx_userdata *userdata = http_request_server_userdata(request);
     struct http_string_s target = http_request_target(request);
-    char *path = malloc(target.len);
+    char *path = malloc(target.len + 1);
     memcpy(path, target.buf, target.len);
+    path[target.len] = 0;
     userdata->handler(request, path, NULL, 0, NULL, 0, xxx_responder, userdata->data);
     free(path);
 }
