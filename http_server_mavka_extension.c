@@ -45,10 +45,30 @@ void handle_request(struct http_request_s *request) {
     char *method_str = malloc(method.len + 1);
     memcpy(method_str, method.buf, method.len);
     method_str[method.len] = 0;
+    struct xxx_header *headers = NULL;
+    int headers_size = 0;
+    int iter = 0;
+    http_string_t key, val;
+    while (http_request_iterate_headers(request, &key, &val, &iter)) {
+        headers = realloc(headers, sizeof(struct xxx_header) * (headers_size + 1));
+        headers[headers_size].key = malloc(key.len + 1);
+        memcpy(headers[headers_size].key, key.buf, key.len);
+        headers[headers_size].key[key.len] = 0;
+        headers[headers_size].value = malloc(val.len + 1);
+        memcpy(headers[headers_size].value, val.buf, val.len);
+        headers[headers_size].value[val.len] = 0;
+        headers_size++;
+    }
     struct http_string_s body = http_request_body(request);
-    userdata->handler(request, method_str, path, NULL, 0, body.buf, body.len, xxx_responder, userdata->data);
+    userdata->handler(request, method_str, path, headers, headers_size, (char *) body.buf, body.len, xxx_responder,
+                      userdata->data);
     free(path);
     free(method_str);
+    for (int i = 0; i < headers_size; i++) {
+        free(headers[i].key);
+        free(headers[i].value);
+    }
+    free(headers);
 }
 
 extern void start_http_server(int port, xxx_handler handler, void *data) {
