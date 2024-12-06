@@ -13,7 +13,8 @@ typedef struct xxx_header {
 typedef void (*xxx_respond)(void *request, int status, struct xxx_header *headers, int headers_size, char *body,
                             int body_size);
 
-typedef void (*xxx_handler)(void *request, char *path, struct xxx_header *headers, int headers_size, char *body,
+typedef void (*xxx_handler)(void *request, char *method, char *path, struct xxx_header *headers, int headers_size,
+                            char *body,
                             int body_size,
                             xxx_respond respond,
                             void *userdata);
@@ -40,8 +41,13 @@ void handle_request(struct http_request_s *request) {
     char *path = malloc(target.len + 1);
     memcpy(path, target.buf, target.len);
     path[target.len] = 0;
-    userdata->handler(request, path, NULL, 0, NULL, 0, xxx_responder, userdata->data);
+    struct http_string_s method = http_request_method(request);
+    char *method_str = malloc(method.len + 1);
+    memcpy(method_str, method.buf, method.len);
+    method_str[method.len] = 0;
+    userdata->handler(request, method_str, path, NULL, 0, NULL, 0, xxx_responder, userdata->data);
     free(path);
+    free(method_str);
 }
 
 extern void start_http_server(int port, xxx_handler handler, void *data) {
