@@ -45,7 +45,8 @@ void handle_request(struct http_request_s *request) {
     char *method_str = malloc(method.len + 1);
     memcpy(method_str, method.buf, method.len);
     method_str[method.len] = 0;
-    userdata->handler(request, method_str, path, NULL, 0, NULL, 0, xxx_responder, userdata->data);
+    struct http_string_s body = http_request_body(request);
+    userdata->handler(request, method_str, path, NULL, 0, body.buf, body.len, xxx_responder, userdata->data);
     free(path);
     free(method_str);
 }
