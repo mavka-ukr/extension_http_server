@@ -8,7 +8,7 @@ bash збудувати.sh
 ```
 
 ```shell
-curl localhost:8080
+curl -X POST localhost:8080 --data 'привіт'
 ```
 
 ```shell
