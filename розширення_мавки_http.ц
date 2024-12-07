@@ -1,12 +1,12 @@
 взяти визначення РМв1;
 
-структура xxx_header {
+структура MavkaHTTPExtHeader {
   key: адреса<char>;
   value: адреса<char>;
 }
-синонім xxx_respond = (request_data: адреса, status: int, headers: адреса<xxx_header>, headers_size: int, data: адреса<char>, data_size: int) -> ніщо;
+синонім MavkaHTTPExtResponseSender = (request_data: адреса, status: int, headers: адреса<MavkaHTTPExtHeader>, headers_size: int, data: адреса<char>, data_size: int) -> ніщо;
 
-зовнішня дія start_http_server(port: int, handler: (request_data: адреса, method: адреса<char>, path: адреса<char>, headers: адреса<xxx_header>, headers_size: int, body: адреса<char>, body_size: int, respond: xxx_respond, data: адреса) -> ніщо, data: адреса);
+зовнішня дія start_http_server(port: int, handler: (request_data: адреса, method: адреса<char>, path: адреса<char>, headers: адреса<MavkaHTTPExtHeader>, headers_size: int, body: адреса<char>, body_size: int, respond: MavkaHTTPExtResponseSender, data: адреса) -> ніщо, data: адреса);
 
 зовнішня дія strcmp(a: адреса<char>, b: адреса<char>): int;
 
@@ -17,7 +17,7 @@
 
 структура ДаніНативноїДіїВідповісти {
   request_data: адреса;
-  respond: xxx_respond;
+  respond: MavkaHTTPExtResponseSender;
 }
 
 дія нативна_дія_відповісти(обʼєкт_нативної_дії: адреса<РМв1::Обʼєкт>, Р: адреса<РМв1::Розширення>, обʼєкт_я: адреса<РМв1::Обʼєкт>, кількість_аргументів: позитивне, аргументи: адреса<адреса<РМв1::Обʼєкт>>, іменовані_аргументи: адреса, дані: адреса): РМв1::Результат {
@@ -27,7 +27,7 @@
     ціль аргумент_заголовків = аргументи[1];
     ціль аргумент_тіла = аргументи[2];
     ціль статус = позитивне(РМв1::отримати_значення_числа(аргумент_статусу, Р));
-    ціль заголовки: адреса<xxx_header> = пусто;
+    ціль заголовки: адреса<MavkaHTTPExtHeader> = пусто;
     ціль розмір_заголовків: позитивне = 0;
     ціль дані: адреса<п8> = пусто;
     ціль розмір_даних: позитивне = 0;
@@ -56,7 +56,7 @@
   РМв1::звільнити(Р, дані_нативної_дії_відповісти);
 }
 
-дія http_request_handler(request_data: адреса, method: адреса<char>, path: адреса<char>, headers: адреса<xxx_header>, headers_size: int, body: адреса<char>, body_size: int, respond: xxx_respond, data: адреса) {
+дія http_request_handler(request_data: адреса, method: адреса<char>, path: адреса<char>, headers: адреса<MavkaHTTPExtHeader>, headers_size: int, body: адреса<char>, body_size: int, respond: MavkaHTTPExtResponseSender, data: адреса) {
   ціль дані_обробника_запиту = data як адреса<ДаніОбробникаЗапиту>;
   ціль Р = дані_обробника_запиту.Р;
   ціль обробник = дані_обробника_запиту.обробник;
