@@ -17,6 +17,9 @@ typedef void (*MavkaHTTPExtRequestHandler)(void* request_data,
                                            int body_size,
                                            MavkaHTTPExtResponseSender respond,
                                            void* userdata);
+
+typedef void (*MavkaHTTPExtCallback)(char* error, void* userdata);
+
 struct MavkaHTTPExtHeader {
   char* key;
   char* value;
@@ -38,10 +41,12 @@ struct MavkaHTTPExtRequestData {
 
 extern "C" void start_http_server(int port,
                                   MavkaHTTPExtRequestHandler handler,
-                                  void* data) {
+                                  void* handler_data,
+                                  MavkaHTTPExtCallback callback,
+                                  void* callback_data) {
   uWS::App()
       .any("/*",
-           [handler, data](auto* res, auto* req) {
+           [handler, handler_data](auto* res, auto* req) {
              char* method = new char[req->getMethod().size() + 1];
              memcpy(method, req->getMethod().data(), req->getMethod().size());
              method[req->getMethod().size()] = '\0';
@@ -62,8 +67,8 @@ extern "C" void start_http_server(int port,
              }
              std::unique_ptr<std::string> body_buffer;
              res->onData([res, body_buffer = std::move(body_buffer), method,
-                          path, headers, i, handler,
-                          data](std::string_view chunk, bool isFin) mutable {
+                          path, headers, i, handler, handler_data](
+                             std::string_view chunk, bool isFin) mutable {
                if (isFin) {
                  if (body_buffer.get()) {
                    body_buffer->append(chunk);
@@ -77,7 +82,7 @@ extern "C" void start_http_server(int port,
                  }
                  auto* request_data = new MavkaHTTPExtRequestData(
                      res, method, path, headers, i, body, body_buffer->size(),
-                     handler, data);
+                     handler, handler_data);
                  handler(
                      request_data, method, path, headers, i, body,
                      body_buffer->size(),
@@ -105,7 +110,7 @@ extern "C" void start_http_server(int port,
                        delete rd->body;
                        delete rd;
                      },
-                     data);
+                     handler_data);
                } else {
                  if (!body_buffer.get()) {
                    body_buffer = std::make_unique<std::string>(chunk);
@@ -116,6 +121,15 @@ extern "C" void start_http_server(int port,
              });
              res->onAborted([]() {});
            })
-      .listen(port, [port](auto* token) {})
+      .listen(port,
+              [callback, callback_data](auto* token) {
+                if (callback) {
+                  if (token) {
+                    callback(nullptr, callback_data);
+                  } else {
+                    callback((char*)"помилка", callback_data);
+                  }
+                }
+              })
       .run();
 }
