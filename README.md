@@ -12,5 +12,5 @@ curl localhost:8080
 ```
 
 ```shell
-ab -c 200 -n 100000 http://localhost:8080/
+wrk -t8 -c200 -d5s http://127.0.0.1:8080
 ```

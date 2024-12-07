@@ -90,23 +90,19 @@ extern "C" void start_http_server(int port,
                        for (int i = 0; i < headers_size; i++) {
                          res->writeHeader(headers[i].key, headers[i].value);
                        }
-                       res->end(body, body_size);
-                       if (rd->method) {
-                         delete rd->method;
+                       if (body == nullptr) {
+                         res->end();
+                       } else {
+                         res->end(body, body_size);
                        }
-                       if (rd->path) {
-                         delete rd->path;
+                       delete rd->method;
+                       delete rd->path;
+                       for (int i = 0; i < rd->headers_size; i++) {
+                         delete rd->headers[i].key;
+                         delete rd->headers[i].value;
                        }
-                       if (rd->headers) {
-                         for (int i = 0; i < rd->headers_size; i++) {
-                           delete rd->headers[i].key;
-                           delete rd->headers[i].value;
-                         }
-                         delete rd->headers;
-                       }
-                       if (rd->body) {
-                         delete rd->body;
-                       }
+                       delete rd->headers;
+                       delete rd->body;
                        delete rd;
                      },
                      data);

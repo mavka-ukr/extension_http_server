@@ -8,6 +8,8 @@
 
 зовнішня дія start_http_server(port: int, handler: (request_data: адреса, method: адреса<char>, path: адреса<char>, headers: адреса<xxx_header>, headers_size: int, body: адреса<char>, body_size: int, respond: xxx_respond, data: адреса) -> ніщо, data: адреса);
 
+зовнішня дія strcmp(a: адреса<char>, b: адреса<char>): int;
+
 структура ДаніОбробникаЗапиту {
   Р: адреса<РМв1::Розширення>;
   обробник: адреса<РМв1::Обʼєкт>;
