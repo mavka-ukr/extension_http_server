@@ -120,11 +120,6 @@ extern "C" void start_http_server(int port,
              });
              res->onAborted([]() {});
            })
-      .listen(port,
-              [port](auto* token) {
-                if (token) {
-                  std::cout << "Listening on port " << port << std::endl;
-                }
-              })
+      .listen(port, [port](auto* token) {})
       .run();
 }
