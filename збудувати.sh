@@ -7,12 +7,13 @@ export CC="clang"
 export CXX="clang++"
 export AR="llvm-ar"
 export RANLIB="llvm-ranlib"
+export TSIL="ціль"
 
 cd uWebSockets
 make capi
 cd -
 
-ціль розширення_мавки_http.ll скомпілювати розширення_мавки_http.ц
+$TSIL розширення_мавки_http.ll скомпілювати розширення_мавки_http.ц
 clang++ -shared -fPIC \
   -march=native \
   -std=c++20 \
